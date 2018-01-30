@@ -24,7 +24,7 @@ var app = new Vue({
         teams: [],
         names: {},
         cities: {},
-        nicks: {},
+        codes: {},
         query: '',
         url: '',
         params: {},
@@ -53,16 +53,19 @@ var app = new Vue({
             this.teams = teams;
             for (var i = 0; i < teams.length; i++) {
                 var team = teams[i];
-                this.names[team.name.toLowerCase()] = team;
-                this.cities[team.city.toLowerCase()] = team;
-                if (team.nick != null) {
-                    this.nicks[team.nick.toLowerCase()] = team;
+                for (var name of team.names) {
+                    this.names[name.toLowerCase()] = team;
+                    this.names[name.replace(/\s/, "").toLowerCase()] = team;
                 }
+                if (team.city != null) {
+                    this.cities[team.city.toLowerCase()] = team;
+                    this.cities[team.city.replace(/\s/, "").toLowerCase()] = team;
+                }
+                this.codes[team.code] = team;
             }
         },
         teamFromID: function (id) {
-            var team = this.names[id] || this.cities[id] || this.nicks[id] || false;
-            console.log(team);
+            var team = this.codes[id] || this.names[id] || this.cities[id] || false;
             return team;
         },
         parse: function (text) {
@@ -71,6 +74,8 @@ var app = new Vue({
                 'depth': this.cmdDepth,
                 'cap': this.cmdCap,
                 'prospects': this.cmdProspects,
+                'reddit': this.cmdReddit,
+                'trades': this.cmdTrades,
             };
 
             var index = text.indexOf(' ');
@@ -118,6 +123,19 @@ var app = new Vue({
                 var query = encodeURIComponent(arg);
                 return `https://capfriendly.com/search?s=${query}`;
             }
+        },
+        cmdReddit: function (arg) {
+            var team = this.teamFromID(arg);
+            if (team) {
+                return `https://reddit.com/r/${team.refs.reddit}`;
+            }
+        },
+        cmdTrades: function (arg) {
+            var team = this.teamFromID(arg);
+            if (team) {
+                return `http://nhltradetracker.com/user/trade_list_by_team/${team.refs.nhltradetracker}/1`;
+            }
+
         }
     }
 });
