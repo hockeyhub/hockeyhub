@@ -40,10 +40,14 @@ var app = new Vue({
         url: '',
         params: {},
         commands: {},
+        help_names: {},
     },
     created: function () {
+        var self = this;
         var data = JSON.parse(document.getElementById('data').innerText);
-        this.load(data.teams);
+        var teams = data.teams;
+
+        this.load(teams);
         this.commands = {
             'lines': this.buildCmdTeam("https://www.dailyfaceoff.com/teams/{}/line-combinations", "dailyfaceoff"),
             'draft': this.cmdDraft, // custom
@@ -53,6 +57,20 @@ var app = new Vue({
             'reddit': this.buildCmdTeam("https://reddit.com/r/{}", "reddit"),
             'trades': this.buildCmdTeam("https://nhltradetracker.com/user/trade_list_by_team/{}/1", "nhltradetracker"),
         };
+        for (var i = 0; i < teams.length; i++) {
+            this.help_names[teams[i].fullname] = [];
+        }
+
+        function addHelp(obj) {
+            for (key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    self.help_names[obj[key].fullname].push(key);
+                }
+            }
+        }
+        addHelp(this.names);
+        addHelp(this.codes);
+        addHelp(this.cities);
     },
     watch: {
         query: function (text) {

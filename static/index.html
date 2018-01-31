@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <div id="app" class="content">
+    <div id="app" class="content" v-cloak>
         <div class="pure-g">
             <div class="pure-u-1">
                 <h2>Hockey Hub - Quick portal for Hockey nerds</h2>
@@ -29,7 +29,7 @@
         <div class="pure-g">
             <div class="pure-u-1">
                 <h3>Commands</h3>
-                <table>
+                <table class="commands">
                     <tr>
                         <td>!lines
                             <span class="arg">team</span>
@@ -94,6 +94,24 @@
                     <code>canadiens</code> or
                     <code>habs</code>.
                 </p>
+                <h4>Full reference</h4>
+                <table class="help pure-table pure-table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Identifiers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(names, fullname) in help_names">
+                            <td>{{fullname}}</td>
+                            <td>
+                                <span v-for="name in names">{{name}}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+
+                </table>
             </div>
         </div>
         <div class="pure-g">
