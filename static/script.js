@@ -25,6 +25,10 @@ function insertVariants(obj, name, val) {
     obj[name.replace(/[\s\.]/g, "")] = val;
 }
 
+function format(text, repl) {
+    return text.replace(/\{\}/, String(repl));
+}
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -35,10 +39,20 @@ var app = new Vue({
         query: '',
         url: '',
         params: {},
+        commands: {},
     },
     created: function () {
         var data = JSON.parse(document.getElementById('data').innerText);
         this.load(data.teams);
+        this.commands = {
+            'lines': this.buildCmdTeam("https://www.dailyfaceoff.com/teams/{}/line-combinations", "dailyfaceoff"),
+            'draft': this.cmdDraft, // custom
+            'depth': this.buildCmdTeam("https://eliteprospects.com/depthchart.php?team={}", "eliteprospects"),
+            'cap': this.cmdCap, // custom
+            'prospects': this.buildCmdTeam("https://eliteprospects.com/in_the_system.php?team={}", "eliteprospects"),
+            'reddit': this.buildCmdTeam("https://reddit.com/r/{}", "reddit"),
+            'trades': this.buildCmdTeam("https://nhltradetracker.com/user/trade_list_by_team/{}/1", "nhltradetracker"),
+        };
     },
     watch: {
         query: function (text) {
@@ -69,82 +83,47 @@ var app = new Vue({
             var team = this.codes[id] || this.names[id] || this.cities[id] || false;
             return team;
         },
-        parse: function (text) {
-            var commands = {
-                'lines': this.cmdLines,
-                'draft': this.cmdDraft,
-                'depth': this.cmdDepth,
-                'cap': this.cmdCap,
-                'prospects': this.cmdProspects,
-                'reddit': this.cmdReddit,
-                'trades': this.cmdTrades,
+        urlFromTeamRef: function (id, url, refname) {
+            var team = this.teamFromID(id);
+            if (team) {
+                var ref = team.refs[refname];
+                return format(url, ref);
+            }
+        },
+        buildCmdTeam: function (url, refname) {
+            var self = this;
+            var func = function (arg) {
+                return self.urlFromTeamRef(arg, url, refname);
             };
-
+            return func;
+        },
+        parse: function (text) {
             var index = text.indexOf(' ');
             if (index >= 0 && text[0] == '!') {
                 var cmd = text.substring(1, index).toLowerCase();
                 var arg = text.substring(index + 1).toLowerCase();
-                var func = commands[cmd];
+                var func = this.commands[cmd];
                 if (func) {
                     return func(arg);
                 }
 
             }
         },
-        cmdLines: function (arg) {
-            var team = this.teamFromID(arg);
-            if (team) {
-                var ref = team.refs.dailyfaceoff;
-                return `https://www.dailyfaceoff.com/teams/${ref}/line-combinations`;
-            }
-        },
         cmdDraft: function (arg) {
             if (/^\d{4}$/.test(arg)) {
-                return `https://www.hockeydb.com/ihdb/draft/nhl${arg}e.html`;
+                return format("https://www.hockeydb.com/ihdb/draft/nhl{}e.html", arg);
             }
-            var team = this.teamFromID(arg);
-            if (team) {
-                var ref = team.refs.hockeydb;
-                return `https://www.hockeydb.com/ihdb/draft/teams/dr${ref}.html`;
-            }
-        },
-        cmdDepth: function (arg) {
-            var team = this.teamFromID(arg);
-            if (team) {
-                var ref = team.refs.eliteprospects;
-                return `https://eliteprospects.com/depthchart.php?team=${ref}`;
-            }
-        },
-        cmdProspects: function (arg) {
-            var team = this.teamFromID(arg);
-            if (team) {
-                var ref = team.refs.eliteprospects;
-                return `https://eliteprospects.com/in_the_system.php?team=${ref}`;
-            }
+            return this.urlFromTeamRef(arg, "https://www.hockeydb.com/ihdb/draft/teams/dr{}.html", "hockeydb");
         },
         cmdCap: function (arg) {
-            var team = this.teamFromID(arg);
-            if (team) {
-                var ref = team.refs.capfriendly;
-                return `https://capfriendly.com/team/${ref}`;
+            var url = this.urlFromTeamRef(arg, "https://capfriendly.com/team/{}", "capfriendly");
+            if (url != null) {
+                return url;
             }
             if (arg.length > 0) {
                 var query = encodeURIComponent(arg);
                 return `https://capfriendly.com/search?s=${query}`;
             }
         },
-        cmdReddit: function (arg) {
-            var team = this.teamFromID(arg);
-            if (team) {
-                return `https://reddit.com/r/${team.refs.reddit}`;
-            }
-        },
-        cmdTrades: function (arg) {
-            var team = this.teamFromID(arg);
-            if (team) {
-                return `https://nhltradetracker.com/user/trade_list_by_team/${team.refs.nhltradetracker}/1`;
-            }
-
-        }
     }
 });
