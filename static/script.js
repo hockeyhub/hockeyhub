@@ -45,7 +45,7 @@ var app = new Vue({
             "!lines habs",
             "!prospects canadiens",
             "!cap hawks",
-            "!cap breant seabrook",
+            "!cap brent seabrook",
             "!reddit leafs",
             "!trades oilers",
         ]
