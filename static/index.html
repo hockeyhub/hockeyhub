@@ -21,14 +21,14 @@
             <div class="pure-u-1">
                 <form class="pure-form" :action="url" method="GET" target="_blank">
                     <input type="hidden" :name="key" :value="val" v-for="(val, key) in params">
-                    <input v-model="query" type="text" placeholder="!prospects habs">
+                    <input v-model="query" type="text" placeholder="Command...">
                     <button class="pure-button" :disabled="url.length === 0">Go!</button>
                 </form>
             </div>
         </div>
         <div class="pure-g">
             <div class="pure-u-1">
-                <h3>Commands</h3>
+                <h3 id="commands">Commands</h3>
                 <table class="commands">
                     <tr>
                         <td>!lines
@@ -85,7 +85,12 @@
                         <td>Team subreddit on reddit</td>
                     </tr>
                 </table>
-                <h3>Teams</h3>
+                <h3 id="examples">Examples</h3>
+                <div class="examples">
+                    <div v-for="example in examples" class="code" @click="loadExample(example)">{{ example }}</div>
+                </div>
+
+                <h3 id="teams">Teams</h3>
                 <p>
                     Teams can be referred to by code, location or names. The field is not case sensitive. For instance the Montreal Canadiens
                     can be referred to as
@@ -94,7 +99,7 @@
                     <code>canadiens</code> or
                     <code>habs</code>.
                 </p>
-                <h4>Full reference</h4>
+                <h4 id="teams_full">Full reference</h4>
                 <table class="help pure-table pure-table-bordered">
                     <thead>
                         <tr>

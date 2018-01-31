@@ -41,6 +41,14 @@ var app = new Vue({
         params: {},
         commands: {},
         help_names: {},
+        examples: [
+            "!lines habs",
+            "!prospects canadiens",
+            "!cap hawks",
+            "!cap breant seabrook",
+            "!reddit leafs",
+            "!trades oilers",
+        ]
     },
     created: function () {
         var self = this;
@@ -142,6 +150,10 @@ var app = new Vue({
                 var query = encodeURIComponent(arg);
                 return `https://capfriendly.com/search?s=${query}`;
             }
+        },
+        loadExample: function (event) {
+            console.log(arguments);
+            this.query = event;
         },
     }
 });
