@@ -59,6 +59,7 @@ var app = new Vue({
         this.commands = {
             'lines': this.buildCmdTeam("https://www.dailyfaceoff.com/teams/{}/line-combinations", "dailyfaceoff"),
             'stats': this.buildCmdTeam("https://www.nhl.com/{}/stats", "nhl"),
+            'schedule': this.buildCmdTeam("https://www.nhl.com/{}/schedule", "nhl"),
             'draft': this.cmdDraft, // custom
             'depth': this.buildCmdTeam("https://eliteprospects.com/depthchart.php?team={}", "eliteprospects"),
             'cap': this.cmdCap, // custom
