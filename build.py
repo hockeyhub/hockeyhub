@@ -31,6 +31,7 @@ hockeydb = read_entries('data/refs/hockeydb')
 reddit = read_entries('data/refs/reddit')
 nhltradetracker = read_entries('data/refs/nhltradetracker')
 dailyfaceoff = read_entries('data/refs/dailyfaceoff')
+nhl = read_entries('data/refs/nhl')
 
 if __name__ == '__main__':
     teams = []
@@ -48,6 +49,7 @@ if __name__ == '__main__':
                 "reddit": reddit[i],
                 "nhltradetracker": nhltradetracker[i],
                 "dailyfaceoff": dailyfaceoff[i],
+                "nhl": nhl[i],
             }
         }
 
