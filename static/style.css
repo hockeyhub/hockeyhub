@@ -12,6 +12,9 @@ body {
     margin-right: auto;
     text-align: center;
 }
+.content input[type="text"] {
+    width: 350px;
+}
 .content table {
     margin-left: auto;
     margin-right: auto;
