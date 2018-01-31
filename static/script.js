@@ -148,7 +148,7 @@ var app = new Vue({
             }
             if (arg.length > 0) {
                 var query = encodeURIComponent(arg);
-                return `https://capfriendly.com/search?s=${query}`;
+                return format("https://capfriendly.com/search?s={}", arg);
             }
         },
         loadExample: function (event) {
