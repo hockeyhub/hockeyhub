@@ -12,8 +12,12 @@ body {
     margin-right: auto;
     text-align: center;
 }
+.content input[type="text"].valid {
+    border-color: #28a745 !important;
+}
 .content input[type="text"] {
     width: 350px;
+    border-color: #dc3545 !important;
 }
 .content table {
     margin-left: auto;

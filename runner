@@ -1,3 +1,5 @@
 #!/bin/bash
 
+watchmedo shell-command -c "python3 build.py dist" --recursive data static &
+
 python3 -m http.server

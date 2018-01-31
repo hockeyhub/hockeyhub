@@ -82,7 +82,7 @@ var app = new Vue({
     },
     watch: {
         query: function (text) {
-            var s = this.parse(text);
+            var s = this.parse(text.trim());
             if (s) {
                 this.url = s;
                 this.params = parseQueryPairs(s);
@@ -152,7 +152,6 @@ var app = new Vue({
             }
         },
         loadExample: function (event) {
-            console.log(arguments);
             this.query = event;
         },
     }
