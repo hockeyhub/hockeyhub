@@ -8,14 +8,21 @@ function parseQueryPairs(href) {
     if (search.length > 1) {
         search = search.substring(1);
         var pairs = search.split('&');
-        for (pair of pairs) {
-            var [key, val] = pair.split('=');
-            key = decodeURIComponent(key);
-            val = decodeURIComponent(val);
+        for (var i = 0; i < pairs.length; i++) {
+            var parts = pairs[i].split('=');
+            var key = key = decodeURIComponent(parts[0]);
+            var val = decodeURIComponent(parts[1]);
             params[key] = val;
         }
     }
     return params;
+}
+
+function insertVariants(obj, name, val) {
+    name = name.toLowerCase();
+    obj[name] = val;
+    obj[name.replace(/\s/g, "")] = val;
+    obj[name.replace(/[\s\.]/g, "")] = val;
 }
 
 var app = new Vue({
@@ -30,12 +37,8 @@ var app = new Vue({
         params: {},
     },
     created: function () {
-        var model = this;
-        fetch("data.json").then((res) => {
-            res.json().then((json) => {
-                model.load(json.teams);
-            });
-        });
+        var data = JSON.parse(document.getElementById('data').innerText);
+        this.load(data.teams);
     },
     watch: {
         query: function (text) {
@@ -53,13 +56,11 @@ var app = new Vue({
             this.teams = teams;
             for (var i = 0; i < teams.length; i++) {
                 var team = teams[i];
-                for (var name of team.names) {
-                    this.names[name.toLowerCase()] = team;
-                    this.names[name.replace(/\s/, "").toLowerCase()] = team;
+                for (var j = 0; j < team.names.length; j++) {
+                    insertVariants(this.names, team.names[j], team);
                 }
                 if (team.city != null) {
-                    this.cities[team.city.toLowerCase()] = team;
-                    this.cities[team.city.replace(/\s/, "").toLowerCase()] = team;
+                    insertVariants(this.cities, team.city, team);
                 }
                 this.codes[team.code] = team;
             }
@@ -70,6 +71,7 @@ var app = new Vue({
         },
         parse: function (text) {
             var commands = {
+                'lines': this.cmdLines,
                 'draft': this.cmdDraft,
                 'depth': this.cmdDepth,
                 'cap': this.cmdCap,
@@ -89,6 +91,13 @@ var app = new Vue({
 
             }
         },
+        cmdLines: function (arg) {
+            var team = this.teamFromID(arg);
+            if (team) {
+                var ref = team.refs.dailyfaceoff;
+                return `https://www.dailyfaceoff.com/teams/${ref}/line-combinations`;
+            }
+        },
         cmdDraft: function (arg) {
             if (/^\d{4}$/.test(arg)) {
                 return `https://www.hockeydb.com/ihdb/draft/nhl${arg}e.html`;
@@ -96,28 +105,28 @@ var app = new Vue({
             var team = this.teamFromID(arg);
             if (team) {
                 var ref = team.refs.hockeydb;
-                return `https://www.hockeydb.com/ihdb/draft/teams/dr${ref}.html`
+                return `https://www.hockeydb.com/ihdb/draft/teams/dr${ref}.html`;
             }
         },
         cmdDepth: function (arg) {
             var team = this.teamFromID(arg);
             if (team) {
                 var ref = team.refs.eliteprospects;
-                return `https://eliteprospects.com/depthchart.php?team=${ref}`
+                return `https://eliteprospects.com/depthchart.php?team=${ref}`;
             }
         },
         cmdProspects: function (arg) {
             var team = this.teamFromID(arg);
             if (team) {
                 var ref = team.refs.eliteprospects;
-                return `https://eliteprospects.com/in_the_system.php?team=${ref}`
+                return `https://eliteprospects.com/in_the_system.php?team=${ref}`;
             }
         },
         cmdCap: function (arg) {
             var team = this.teamFromID(arg);
             if (team) {
                 var ref = team.refs.capfriendly;
-                return `https://capfriendly.com/team/${ref}`
+                return `https://capfriendly.com/team/${ref}`;
             }
             if (arg.length > 0) {
                 var query = encodeURIComponent(arg);
@@ -133,7 +142,7 @@ var app = new Vue({
         cmdTrades: function (arg) {
             var team = this.teamFromID(arg);
             if (team) {
-                return `http://nhltradetracker.com/user/trade_list_by_team/${team.refs.nhltradetracker}/1`;
+                return `https://nhltradetracker.com/user/trade_list_by_team/${team.refs.nhltradetracker}/1`;
             }
 
         }

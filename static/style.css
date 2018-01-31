@@ -1,0 +1,28 @@
+body {
+    text-align: center;
+}
+.content {
+    margin-top: 20px;
+    max-width: 768px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+.content table {
+    margin-left: auto;
+    margin-right: auto;
+}
+tr td:first-child {
+    text-align:right;
+    padding-right: 20px;
+    font-size: small;
+    font-family: monospace;
+}
+tr td:last-child {
+    text-align:left;
+    font-size: smaller;
+    color: #555;
+}
+tr td .arg {
+    text-decoration: underline;
+}
