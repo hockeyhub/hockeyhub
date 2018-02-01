@@ -14,7 +14,7 @@
         <div class="pure-g">
             <div class="pure-u-1">
                 <h2>Hockey Hub - Quick portal for Hockey nerds</h2>
-                <p>Just type a query and hit enter or the Go! button.</p>
+                <p>Just type a query and hit enter or the Go button.</p>
             </div>
         </div>
         <div class="pure-g">
@@ -22,7 +22,7 @@
                 <form class="pure-form" :action="url" method="GET" target="_blank">
                     <input type="hidden" :name="key" :value="val" v-for="(val, key) in params">
                     <input v-model="query" type="text" placeholder="Query..." :class="{valid: url.length !== 0}">
-                    <button class="pure-button" :disabled="url.length === 0">Go!</button>
+                    <button class="pure-button" :disabled="url.length === 0">Go</button>
                 </form>
             </div>
         </div>
@@ -85,16 +85,24 @@
         </div>
         <div class="pure-g">
             <div class="pure-u-1">
-                <hr> Hockey Hub is free software licensed under the
-                <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">AGPLv3</a> License.
-                <br> The data used by this website is available
-                <a href="data.json">here</a>. The source code is available
-                <a href="https://github.com/hockeyhub/hockeyhub">here</a>.
+                <hr>
+                <p>
+                    If you find a link that doesn't work or have suggestions, you can
+                    <a href="https://github.com/hockeyhub/hockeyhub/issues">open an issue</a> on GitHub or message
+                    <a href="https://reddit.com/u/epic_pork">/u/epic_pork</a> on reddit.
+                </p>
+                <p>
+                    Hockey Hub is free software licensed under the
+                    <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">AGPLv3</a> License.
+                    <br> The data used by this website is available
+                    <a href="data.json">here</a>. The source code is available
+                    <a href="https://github.com/hockeyhub/hockeyhub">here</a>.
+                </p>
             </div>
         </div>
     </div>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.js"></script> -->
     <script src="script.js"></script>
 </body>
 

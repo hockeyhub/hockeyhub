@@ -1,0 +1,7 @@
+#!/bin/bash
+set -ex
+
+if ./build ../hockeyhub.github.io/ ; then
+    cd ../hockeyhub.github.io/
+    git add . && git commit -m 'update' && git push origin master
+fi
