@@ -10,7 +10,7 @@ function parseQueryPairs(href) {
         var pairs = search.split('&');
         for (var i = 0; i < pairs.length; i++) {
             var parts = pairs[i].split('=');
-            var key = key = decodeURIComponent(parts[0]);
+            var key = decodeURIComponent(parts[0]);
             var val = decodeURIComponent(parts[1]);
             params[key] = val;
         }
@@ -40,20 +40,20 @@ function makeHelp(name, options, text) {
         opts: options.opts,
         or: options.or,
         text: text,
-    }
+    };
 }
 
-var help = [
+var help_queries = [
     makeHelp('lines', { args: ['team'] }, "Team lines on Daily Faceoff"),
     makeHelp('stats', { args: ['team'], opts: ['year'] }, "Team stats on nhl.com, year optional"),
     makeHelp('schedule', { args: ['team'] }, "Team schedule on nhl.com"),
-    makeHelp('draft', { or: ['team', 'year'] }, "Draft history for team or year on HockeyDB"),
+    makeHelp('draft', { or: ['team', 'year'] }, "Draft history for team or year on Hockey-Reference"),
     makeHelp('cap', { or: ['team', 'player'] }, "Cap information for team or player on CapFriendly"),
     makeHelp('depth', { args: ['team'] }, "Team depth chart on Elite Prospects"),
     makeHelp('prospects', { args: ['team'] }, "Team prospects on Elite Prospects"),
     makeHelp('trades', { args: ['team'] }, "Team trade history on NHL Trade Tracker"),
     makeHelp('reddit', { args: ['team'] }, "Team subreddit on Reddit"),
-]
+];
 
 var app = new Vue({
     el: '#app',
@@ -66,7 +66,7 @@ var app = new Vue({
         url: '',
         params: {},
         commands: {},
-        help_names: {},
+        help_teams: {},
         examples: [
             "habs lines",
             "2012 draft",
@@ -75,7 +75,7 @@ var app = new Vue({
             "reddit leafs",
             "oilers trades",
         ],
-        help_cmd: help,
+        help_queries: help_queries,
     },
     created: function () {
         var self = this;
@@ -95,16 +95,17 @@ var app = new Vue({
             'trades': this.buildCmdTeam("https://nhltradetracker.com/user/trade_list_by_team/{}/1", "nhltradetracker"),
         };
         for (var i = 0; i < teams.length; i++) {
-            this.help_names[teams[i].fullname] = [];
+            this.help_teams[teams[i].fullname] = [];
         }
 
         function addHelp(obj) {
             for (var key in obj) {
                 if (obj.hasOwnProperty(key)) {
-                    self.help_names[obj[key].fullname].push(key);
+                    self.help_teams[obj[key].fullname].push(key);
                 }
             }
         }
+
         addHelp(this.names);
         addHelp(this.codes);
         addHelp(this.cities);
@@ -166,10 +167,10 @@ var app = new Vue({
                     if (token[0] == '!') {
                         // legacy bang support
                         var stripped = token.substring(1);
-                        var cmd = this.commands[stripped];
+                        cmd = this.commands[stripped];
                     }
                     // check if the token is a command
-                    var cmd = cmd || this.commands[token];
+                    cmd = cmd || this.commands[token];
                     if (cmd != null) {
                         res.command = cmd;
                     } else {
@@ -222,9 +223,9 @@ var app = new Vue({
         },
         cmdDraft: function (res) {
             if (res.year != null) {
-                return format("https://www.hockeydb.com/ihdb/draft/nhl{}e.html", res.year);
+                return format("https://www.hockey-reference.com/draft/NHL_{}_entry.html", res.year);
             } else if (res.team != null) {
-                return this.urlFromTeamRef(res.team, "https://www.hockeydb.com/ihdb/draft/teams/dr{}.html", "hockeydb");
+                return this.urlFromTeamRef(res.team, "https://www.hockey-reference.com/teams/{}/draft.html", "hockey-reference");
             }
         },
         cmdCap: function (res) {

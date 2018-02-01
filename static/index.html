@@ -30,7 +30,7 @@
             <div class="pure-u-1">
                 <h3 id="commands">Queries</h3>
                 <p>
-                    The order of the keywords do not matter. You can type
+                    The order of the keywords does not matter. You can type
                     <span class="query" @click="loadExample">lines habs</span>,
                     <span class="query" @click="loadExample">ovechkin cap</span> or
                     <span class="query" @click="loadExample">2014 stats habs</span>, it makes no difference. The case is also irrelevant. Note that writing a ! before
@@ -38,7 +38,7 @@
                 </p>
                 <h4>Reference</h4>
                 <table class="commands">
-                    <tr v-for="help in help_cmd">
+                    <tr v-for="help in help_queries">
                         <td class="first">{{help.name}}</td>
                         <td class="second">
                             <span v-for="arg in help.args" class="arg">{{arg}}</span>
@@ -72,7 +72,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(names, fullname) in help_names">
+                        <tr v-for="(names, fullname) in help_teams">
                             <td>{{fullname}}</td>
                             <td>
                                 <span v-for="name in names">{{name}}</span>
