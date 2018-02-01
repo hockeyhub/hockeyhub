@@ -19,36 +19,48 @@ body {
     width: 350px;
     border-color: #dc3545 !important;
 }
+.query {
+    font-family: monospace;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.query:hover {
+    color: #555;
+}
 .content table {
     margin-left: auto;
     margin-right: auto;
 }
-.commands td:first-child {
-    text-align:right;
-    padding-right: 20px;
-    font-family: monospace;
+.commands tr .first {
+    text-align: right;
 }
-.commands td:last-child {
-    text-align:left;
-    font-size: small;
-    color: #555;
+.commands tr .second {
+    padding-left: 10px;
+    text-align: left;
+    padding-right: 20px;
+}
+.commands tr .third {
+    text-align: left;
 }
 .commands td .arg {
-    text-decoration: underline;
-}
-.examples .code {
-    display: inline-block;
-    text-decoration: underline;
-    margin-left: 5px;
     margin-right: 5px;
-    font-family: monospace;
-    cursor: pointer;
+    text-decoration: underline;
+    float: left;
 }
-.examples .code:hover {
-    color: #555;
+.commands td .or .join {
+    text-decoration: none;
+}
+.commands td .or:last-child .join {
+    display: none;
+}
+.examples .query {
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 10px;
+    font-size: bigger;
 }
 .help td span {
-    text-decoration: underline;
+    display: inline-block;
     margin-left: 5px;
     margin-right: 5px;
 }

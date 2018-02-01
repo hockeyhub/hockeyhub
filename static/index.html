@@ -14,102 +14,54 @@
         <div class="pure-g">
             <div class="pure-u-1">
                 <h2>Hockey Hub - Quick portal for Hockey nerds</h2>
-                <p>Just type a command and hit go.</p>
+                <p>Just type a query and hit enter or the Go! button.</p>
             </div>
         </div>
         <div class="pure-g">
             <div class="pure-u-1">
                 <form class="pure-form" :action="url" method="GET" target="_blank">
                     <input type="hidden" :name="key" :value="val" v-for="(val, key) in params">
-                    <input v-model="query" type="text" placeholder="Command..." :class="{valid: url.length !== 0}">
+                    <input v-model="query" type="text" placeholder="Query..." :class="{valid: url.length !== 0}">
                     <button class="pure-button" :disabled="url.length === 0">Go!</button>
                 </form>
             </div>
         </div>
         <div class="pure-g">
             <div class="pure-u-1">
-                <h3 id="commands">Commands</h3>
+                <h3 id="commands">Queries</h3>
+                <p>
+                    The order of the keywords do not matter. You can type
+                    <span class="query" @click="loadExample">lines habs</span>,
+                    <span class="query" @click="loadExample">ovechkin cap</span> or
+                    <span class="query" @click="loadExample">2014 stats habs</span>, it makes no difference. The case is also irrelevant. Note that writing a ! before
+                    the command/query is not required anymore, but still works.
+                </p>
+                <h4>Reference</h4>
                 <table class="commands">
-                    <tr>
-                        <td>!lines
-                            <span class="arg">team</span>
+                    <tr v-for="help in help_cmd">
+                        <td class="first">{{help.name}}</td>
+                        <td class="second">
+                            <span v-for="arg in help.args" class="arg">{{arg}}</span>
+                            <span v-for="arg in help.or" class="or">
+                                <span class="arg">{{arg}}</span>
+                                <span class="arg join">or</span>
+                            </span>
+                            <span v-for="arg in help.opts" class="arg opt">[{{arg}}]</span>
                         </td>
-                        <td>Team line combinations on Daily Faceoff</td>
-                    </tr>
-                    <tr>
-                        <td>!stats
-                            <span class="arg">team</span>
-                        </td>
-                        <td>Team stats on nhl.com</td>
-                    </tr>
-                    <tr>
-                        <td>!schedule
-                            <span class="arg">team</span>
-                        </td>
-                        <td>Team schedule on nhl.com</td>
-                    </tr>
-                    <tr>
-                        <td>!draft
-                            <span class="arg">year</span>
-                        </td>
-                        <td>Draft year on HockeyDB</td>
-                    </tr>
-                    <tr>
-                        <td>!draft
-                            <span class="arg">team</span>
-                        </td>
-                        <td>Team draft history on HockeyDB</td>
-                    </tr>
-                    <tr>
-                        <td>!cap
-                            <span class="arg">team</span>
-                        </td>
-                        <td>Team cap on CapFriendly</td>
-                    </tr>
-                    <tr>
-                        <td>!cap
-                            <span class="arg">player</span>
-                        </td>
-                        <td>Player contract on CapFriendly</td>
-                    </tr>
-                    <tr>
-                        <td>!depth
-                            <span class="arg">team</span>
-                        </td>
-                        <td>Depth chart on Elite Prospects</td>
-                    </tr>
-                    <tr>
-                        <td>!prospects
-                            <span class="arg">team</span>
-                        </td>
-                        <td>Prospects (in the system) on Elite Prospects</td>
-                    </tr>
-                    <tr>
-                        <td>!trades
-                            <span class="arg">team</span>
-                        </td>
-                        <td>Trade history on NHL Trade Tracker</td>
-                    </tr>
-                    <tr>
-                        <td>!reddit
-                            <span class="arg">team</span>
-                        </td>
-                        <td>Team subreddit on reddit</td>
+                        <td class="third">{{help.text}}</td>
                     </tr>
                 </table>
-                <h3 id="examples">Examples</h3>
+                <h4 id="examples">Examples</h4>
                 <div class="examples">
-                    <div v-for="example in examples" class="code" @click="loadExample(example)">{{ example }}</div>
+                    <div v-for="example in examples" class="query" @click="loadExample">{{ example }}</div>
                 </div>
-
                 <h3 id="teams">Teams</h3>
                 <p>
-                    Teams can be referred to by code, location or names. The field is not case sensitive. For instance the Montreal Canadiens
-                    can be referred to as
-                    <code>mtl</code>,
-                    <code>montreal</code>,
-                    <code>canadiens</code> or
-                    <code>habs</code>.
+                    Teams can be referred to by code, location or names. For instance the Montreal Canadiens can be referred to as
+                    <span class="query">mtl</span>,
+                    <span class="query">montreal</span>,
+                    <span class="query">canadiens</span> or
+                    <span class="query">habs</span>.
                 </p>
                 <h4 id="teams_full">Full reference</h4>
                 <table class="help pure-table pure-table-bordered">
@@ -141,7 +93,8 @@
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.js"></script>
     <script src="script.js"></script>
 </body>
 
