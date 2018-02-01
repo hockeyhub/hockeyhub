@@ -1,5 +1,6 @@
 import json
 import sys
+from collections import OrderedDict
 from pathlib import Path
 
 
@@ -23,33 +24,26 @@ fullnames = read_entries('data/fullnames')
 names = read_names('data/names')
 places = read_entries('data/places')
 codes = read_entries('data/codes')
-capfriendly = read_entries('data/refs/capfriendly')
-eliteprospects = read_entries('data/refs/eliteprospects')
-hockeydb = read_entries('data/refs/hockeydb')
-reddit = read_entries('data/refs/reddit')
-nhltradetracker = read_entries('data/refs/nhltradetracker')
-dailyfaceoff = read_entries('data/refs/dailyfaceoff')
-nhl = read_entries('data/refs/nhl')
+
+refs_paths = list(Path('data/refs').iterdir())
+refs_paths.sort(key=lambda p: p.name)
+refs = OrderedDict()
+for path in refs_paths:
+    refs[path.name] = read_entries(str(path))
 
 if __name__ == '__main__':
     teams = []
 
     for i in range(31):
-        team = {
-            "fullname": fullnames[i],
-            "names": names[i],
-            "city": places[i],
-            "code": codes[i],
-            "refs": {
-                "capfriendly": capfriendly[i],
-                "eliteprospects": eliteprospects[i],
-                "hockeydb": hockeydb[i],
-                "reddit": reddit[i],
-                "nhltradetracker": nhltradetracker[i],
-                "dailyfaceoff": dailyfaceoff[i],
-                "nhl": nhl[i],
-            }
-        }
+        obj_refs = OrderedDict()
+        for ref_name, ref_vals in refs.items():
+            obj_refs[ref_name] = ref_vals[i]
+        team = OrderedDict()
+        team['fullname'] = fullnames[i]
+        team['names'] = names[i]
+        team['city'] = places[i]
+        team['code'] = codes[i]
+        team['refs'] = obj_refs
 
         teams.append(team)
 
