@@ -2,6 +2,12 @@
 
 trap 'kill $(jobs -pr)' SIGINT SIGTERM EXIT
 
-watchmedo shell-command -c "./build dist" --recursive data static &
+if [ $(which watchmedo) ] ; then
+    watch="watchmedo"
+else
+    watch="watchmedo3"
+fi
+
+$watch shell-command -c "./build dist" --recursive data static &
 
 python3 -m http.server

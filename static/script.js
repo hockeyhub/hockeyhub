@@ -52,6 +52,7 @@ var help_queries = [
     makeHelp('depth', { args: ['team'] }, "Team depth chart on Elite Prospects"),
     makeHelp('prospects', { args: ['team'] }, "Team prospects on Elite Prospects"),
     makeHelp('trades', { args: ['team'] }, "Team trade history on NHL Trade Tracker"),
+    makeHelp('highlights', { opts: ['team'] }, "Game Highlights, team optional"),
     makeHelp('reddit', { args: ['team'] }, "Team subreddit on Reddit"),
 ];
 
@@ -93,6 +94,7 @@ var app = new Vue({
             'prospects': this.buildCmdTeam("https://eliteprospects.com/in_the_system.php?team={}", "eliteprospects"),
             'reddit': this.buildCmdTeam("https://reddit.com/r/{}", "reddit"),
             'trades': this.buildCmdTeam("https://nhltradetracker.com/user/trade_list_by_team/{}/1", "nhltradetracker"),
+            'highlights': this.cmdHighlights,
         };
         for (var i = 0; i < teams.length; i++) {
             this.help_teams[teams[i].fullname] = [];
@@ -234,6 +236,13 @@ var app = new Vue({
             } else if (res.text.length > 0) {
                 var query = encodeURIComponent(res.text);
                 return format("https://capfriendly.com/search?s={}", query);
+            }
+        },
+        cmdHighlights: function (res) {
+            if (res.team != null) {
+                return this.urlFromTeamRef(res.team, "https://highlights.hockey/{}.html", "highlights");
+            } else if (res.text.length == 0) {
+                return "https://highlights.hockey/";
             }
         },
     }
