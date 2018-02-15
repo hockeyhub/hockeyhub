@@ -21,7 +21,7 @@
             <div class="pure-u-1">
                 <form class="pure-form" :action="url" method="GET" target="_blank">
                     <input type="hidden" :name="key" :value="val" v-for="(val, key) in params">
-                    <input v-model="query" type="text" placeholder="Query..." :class="{valid: url.length !== 0}">
+                    <input id="query" autofocus v-model="query" type="text" placeholder="Query..." :class="{valid: url.length !== 0}">
                     <button class="pure-button" :disabled="url.length === 0">Go</button>
                 </form>
             </div>
