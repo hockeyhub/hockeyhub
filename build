@@ -7,5 +7,5 @@ if [ "$#" != 1 ] ; then
 fi
 
 python3 build.py "$1"
-cp static/style.css "$1/style.css"
-cp static/script.js "$1/script.js"
+cp static/*.js "$1"
+cp static/*.css "$1"
