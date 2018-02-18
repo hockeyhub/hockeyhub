@@ -264,7 +264,7 @@ var app = new Vue({
             if (res.text.length > 0) {
                 return {
                     method: "post",
-                    url: "http://www.eliteprospects.com/playersearch2.php",
+                    url: "https://www.eliteprospects.com/playersearch2.php",
                     params: {
                         psearch: "psearch",
                         player: res.text,
