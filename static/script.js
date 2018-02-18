@@ -49,6 +49,7 @@ var help_queries = [
     makeHelp('schedule', { args: ['team'] }, "Team schedule on nhl.com"),
     makeHelp('draft', { or: ['team', 'year'] }, "Draft history for team or year on Hockey-Reference"),
     makeHelp('cap', { or: ['team', 'player'] }, "Cap information for team or player on CapFriendly"),
+    makeHelp('player', { args: ['player'] }, "Search for player on Elite Prospects"),
     makeHelp('depth', { args: ['team'] }, "Team depth chart on Elite Prospects"),
     makeHelp('prospects', { args: ['team'] }, "Team prospects on Elite Prospects"),
     makeHelp('trades', { args: ['team'] }, "Team trade history on NHL Trade Tracker"),
@@ -65,13 +66,14 @@ var app = new Vue({
         codes: {},
         query: '',
         url: '',
+        method: 'get',
         params: {},
         commands: {},
         help_teams: {},
         examples: [
             "habs lines",
             "2012 draft",
-            "hawks cap",
+            "player victor mete",
             "cap brent seabrook",
             "reddit leafs",
             "oilers trades",
@@ -95,6 +97,7 @@ var app = new Vue({
             'reddit': this.buildCmdTeam("https://reddit.com/r/{}", "reddit"),
             'trades': this.buildCmdTeam("https://nhltradetracker.com/user/trade_list_by_team/{}/1", "nhltradetracker"),
             'highlights': this.cmdHighlights,
+            'player': this.cmdPlayer,
         };
         for (var i = 0; i < teams.length; i++) {
             this.help_teams[teams[i].fullname] = [];
@@ -114,12 +117,21 @@ var app = new Vue({
     },
     watch: {
         query: function (text) {
-            var s = this.parse(text.trim());
-            if (s) {
-                this.url = s;
-                this.params = parseQueryPairs(s);
+            var url = this.parse(text.trim());
+            if (url) {
+                if (typeof url === 'string') {
+                    this.url = url;
+                    this.params = parseQueryPairs(url);
+                    this.method = "get";
+                } else {
+                    this.url = url.url;
+                    this.method = url.method;
+                    this.params = url.params;
+                }
             } else {
                 this.url = '';
+                this.params = {};
+                this.method = "get";
             }
         }
     },
@@ -197,6 +209,9 @@ var app = new Vue({
             var ref = team.refs[refname];
             return format(url, ref);
         },
+        /**
+         * Returns a string for GET requests, returns an object with {method, url, params} for general requests.
+         */
         parse: function (text) {
             var res = this.parseQuery(text);
             if (res.command) {
@@ -243,6 +258,18 @@ var app = new Vue({
                 return this.urlFromTeamRef(res.team, "https://highlights.hockey/{}.html", "highlights");
             } else if (res.text.length == 0) {
                 return "https://highlights.hockey/";
+            }
+        },
+        cmdPlayer: function (res) {
+            if (res.text.length > 0) {
+                return {
+                    method: "post",
+                    url: "http://www.eliteprospects.com/playersearch2.php",
+                    params: {
+                        psearch: "psearch",
+                        player: res.text,
+                    }
+                };
             }
         },
     }
