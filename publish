@@ -2,7 +2,8 @@
 set -ex
 
 REPO=dist/repo
-PWD=$(pwd)
+DIR=$(pwd)
+echo $DIR
 
 mkdir -p $(dirname "$REPO")
 
@@ -13,5 +14,5 @@ if ./build "$REPO" ; then
     git add . && git commit -m 'update' && git push origin master
 fi
 
-cd $PWD
+cd "$DIR"
 rm -rf "$REPO"
