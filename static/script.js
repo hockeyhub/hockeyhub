@@ -47,7 +47,7 @@ var help_queries = [
     makeHelp('lines', { args: ['team'] }, "Team lines on Daily Faceoff"),
     makeHelp('stats', { args: ['team'], opts: ['year'] }, "Team stats on nhl.com, year optional"),
     makeHelp('schedule', { args: ['team'] }, "Team schedule on nhl.com"),
-    makeHelp('draft', { or: ['team', 'year'] }, "Draft history for team or year on Hockey-Reference"),
+    makeHelp('draft', { or: ['team', 'year'] }, "Draft history for team or year on Elite Prospects"),
     makeHelp('cap', { or: ['team', 'player'] }, "Cap information for team or player on CapFriendly"),
     makeHelp('player', { args: ['player'] }, "Search for player on Elite Prospects"),
     makeHelp('depth', { args: ['team'] }, "Team depth chart on Elite Prospects"),
@@ -240,9 +240,9 @@ var app = new Vue({
         },
         cmdDraft: function (res) {
             if (res.year != null) {
-                return format("https://www.hockey-reference.com/draft/NHL_{}_entry.html", res.year);
+                return format("http://www.eliteprospects.com/draft.php?year={}", res.year);
             } else if (res.team != null) {
-                return this.urlFromTeamRef(res.team, "https://www.hockey-reference.com/teams/{}/draft.html", "hockey-reference");
+                return this.urlFromTeamRef(res.team, "http://www.eliteprospects.com/draft_by_team.php?TeamID={}", "eliteprospects");
             }
         },
         cmdCap: function (res) {
