@@ -24,10 +24,14 @@
         </div>
         <div class="pure-g">
             <div class="pure-u-1">
-                <form class="pure-form" :action="url" :method="method" target="_blank">
+                <form id="query_form" class="pure-form" :action="url" :method="method" target="_blank">
                     <input type="hidden" :name="key" :value="val" v-for="(val, key) in params">
                     <input id="query" autofocus v-model="query" type="text" placeholder="Query..." :class="{valid: url.length !== 0}">
-                    <button class="pure-button" :disabled="url.length === 0">Go</button>
+                    <div class="pure-button-group" role="group">
+                        <button type="submit" class="pure-button" :disabled="url.length === 0">Search</button>
+                        <button @click="shareLink" type="button" class="pure-button" :disabled="url.length === 0">Share</button>
+                    </div>
+
                 </form>
             </div>
         </div>
