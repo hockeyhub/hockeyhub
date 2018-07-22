@@ -96,9 +96,9 @@ var app = new Vue({
             'stats': this.cmdStats,
             'schedule': this.buildCmdTeam("https://www.nhl.com/{}/schedule", "nhl"),
             'draft': this.cmdDraft, // custom
-            'depth': this.buildCmdTeam("https://eliteprospects.com/depthchart.php?team={}", "eliteprospects"),
+            'depth': this.buildCmdTeam("https://www.eliteprospects.com/team/{}/{}/depth-chart", ["eliteprospects_id", "eliteprospects_name"]),
             'cap': this.cmdCap, // custom
-            'prospects': this.buildCmdTeam("https://eliteprospects.com/in_the_system.php?team={}", "eliteprospects"),
+            'prospects': this.buildCmdTeam("https://www.eliteprospects.com/team/{}/{}/in-the-system", ["eliteprospects_id", "eliteprospects_name"]),
             'reddit': this.buildCmdTeam("https://reddit.com/r/{}", "reddit"),
             'trades': this.buildCmdTeam("https://nhltradetracker.com/user/trade_list_by_team/{}/1", "nhltradetracker"),
             'highlights': this.cmdHighlights,
@@ -233,9 +233,13 @@ var app = new Vue({
             var team = this.codes[id] || this.names[id] || this.cities[id] || false;
             return team;
         },
-        urlFromTeamRef: function (team, url, refname) {
-            var ref = team.refs[refname];
-            return format(url, ref);
+        urlFromTeamRefs: function (team, url, refs) {
+            if (typeof refs === 'string') {
+                refs = [refs];
+            }
+            var datums = refs.map(function (ref) { return team.refs[ref]; });
+            datums.unshift(url);
+            return format.apply(this, datums);
         },
         /**
          * Returns a string for GET requests, returns an object with {method, url, params} for general requests.
@@ -246,11 +250,14 @@ var app = new Vue({
                 return res.command(res);
             }
         },
-        buildCmdTeam: function (url, refname) {
+        buildCmdTeam: function (url, refs) {
+            if (typeof refs === 'string') {
+                refs = [refs];
+            }
             var self = this;
             var func = function (res) {
                 if (res.team != null) {
-                    return self.urlFromTeamRef(res.team, url, refname);
+                    return self.urlFromTeamRefs(res.team, url, refs);
                 }
             };
             return func;
@@ -268,14 +275,16 @@ var app = new Vue({
         },
         cmdDraft: function (res) {
             if (res.year != null) {
-                return format("http://www.eliteprospects.com/draft.php?year={}", res.year);
+                return format("https://www.eliteprospects.com/draft/nhl-entry-draft/{}", res.year);
             } else if (res.team != null) {
-                return this.urlFromTeamRef(res.team, "http://www.eliteprospects.com/draft_by_team.php?TeamID={}", "eliteprospects");
+                return this.urlFromTeamRefs(res.team,
+                    "https://www.eliteprospects.com/draft/nhl-entry-draft/team/{}/{}",
+                    ["eliteprospects_id", "eliteprospects_name"]);
             }
         },
         cmdCap: function (res) {
             if (res.team != null) {
-                return this.urlFromTeamRef(res.team, "https://capfriendly.com/team/{}", "capfriendly");
+                return this.urlFromTeamRefs(res.team, "https://capfriendly.com/team/{}", "capfriendly");
             } else if (res.text.length > 0) {
                 var query = encodeURIComponent(res.text);
                 return format("https://capfriendly.com/search?s={}", query);
@@ -283,21 +292,14 @@ var app = new Vue({
         },
         cmdHighlights: function (res) {
             if (res.team != null) {
-                return this.urlFromTeamRef(res.team, "https://highlights.hockey/{}.html", "highlights");
+                return this.urlFromTeamRefs(res.team, "https://highlights.hockey/{}.html", "highlights");
             } else if (res.text.length == 0) {
                 return "https://highlights.hockey/";
             }
         },
         cmdPlayer: function (res) {
             if (res.text.length > 0) {
-                return {
-                    method: "post",
-                    url: "http://www.eliteprospects.com/playersearch2.php",
-                    params: {
-                        psearch: "psearch",
-                        player: res.text,
-                    }
-                };
+                return format("https://www.eliteprospects.com/search/player?q={}", encodeURIComponent(res.text));
             }
         },
     }
