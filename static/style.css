@@ -53,6 +53,9 @@ body {
 .commands td .or:last-child .join {
     display: none;
 }
+.commands .second > div {
+    display: inline;
+}
 .examples .query {
     display: inline-block;
     margin-left: 10px;
@@ -66,4 +69,9 @@ body {
 }
 .help thead th {
     text-align: center;
+}
+pre {
+    text-align: left;
+    font-size: 10pt;
+    display: inline-block;
 }

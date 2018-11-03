@@ -1,3 +1,5 @@
+"use scrict";
+
 function parseQueryString(search) {
     var params = {};
 
@@ -15,8 +17,6 @@ function parseQueryString(search) {
 }
 
 function parseURLQueryString(href) {
-    var params = {};
-
     var a = document.createElement('a');
     a.href = href;
 
@@ -38,6 +38,15 @@ function format(text) {
     });
 }
 
+function pad(num) {
+    var x = parseInt(num, 10);
+    if (x < 10) {
+        return format("0{}", x);
+    }
+    return format("{}", x);
+}
+
+
 function makeHelp(name, options, text) {
     return {
         name: name,
@@ -58,6 +67,7 @@ var help_queries = [
     makeHelp('depth', { args: ['team'] }, "Team depth chart on Elite Prospects"),
     makeHelp('prospects', { args: ['team'] }, "Team prospects on Elite Prospects"),
     makeHelp('trades', { args: ['team'] }, "Team trade history on NHL Trade Tracker"),
+    makeHelp('jersey', { or: ['number', 'name'], opts: ["team"] }, "Find a player by jersey number"),
     makeHelp('highlights', { opts: ['team'] }, "Game Highlights, team optional"),
     makeHelp('reddit', { args: ['team'] }, "Team subreddit on Reddit"),
 ];
@@ -76,19 +86,43 @@ var app = new Vue({
         commands: {},
         help_teams: {},
         examples: [
+            "jersey habs 15",
             "habs lines",
             "2012 draft",
             "player victor mete",
             "cap brent seabrook",
             "reddit leafs",
             "oilers trades",
+            "jersey brendan",
         ],
         help_queries: help_queries,
+        rosters: null,
+        answer: "",
     },
     created: function () {
         var self = this;
         var data = JSON.parse(document.getElementById('data').innerText);
         var teams = data.teams;
+
+        axios.get("https://statsapi.web.nhl.com/api/v1/teams?expand=team.roster").then(function (data) {
+            data = data.data;
+            var rosters = {};
+            for (var i = 0; i < data.teams.length; i++) {
+                var team = data.teams[i];
+                var roster = {};
+                team.roster.roster.forEach(function (player) {
+                    roster[player.jerseyNumber] = player.person.fullName;
+                });
+                rosters[team.abbreviation.toLowerCase()] = roster;
+            }
+            self.rosters = rosters;
+
+            // Parse and analyze the query after loading roster information.
+            // When a shared link is used, the query is parsed and displayed before the roster information
+            // is loaded, so it says "no results". By parsing the query again after loading the roster
+            // information, we make sure that this issue does not happen.
+            self.runQuery(self.query);
+        });
 
         this.load(teams);
         this.commands = {
@@ -102,8 +136,10 @@ var app = new Vue({
             'reddit': this.buildCmdTeam("https://reddit.com/r/{}", "reddit"),
             'trades': this.buildCmdTeam("https://nhltradetracker.com/user/trade_list_by_team/{}/1", "nhltradetracker"),
             'highlights': this.cmdHighlights,
+            'jersey': this.cmdJersey,
             'player': this.cmdPlayer,
         };
+
         for (var i = 0; i < teams.length; i++) {
             this.help_teams[teams[i].fullname] = [];
         }
@@ -135,22 +171,7 @@ var app = new Vue({
     },
     watch: {
         query: function (text) {
-            var url = this.parse(text.trim());
-            if (url) {
-                if (typeof url === 'string') {
-                    this.url = url;
-                    this.params = parseURLQueryString(url);
-                    this.method = "get";
-                } else {
-                    this.url = url.url;
-                    this.method = url.method;
-                    this.params = url.params;
-                }
-            } else {
-                this.url = '';
-                this.params = {};
-                this.method = "get";
-            }
+            this.runQuery(text);
         }
     },
     methods: {
@@ -167,11 +188,11 @@ var app = new Vue({
                 this.codes[team.code] = team;
             }
         },
-
         loadExample: function (event) {
             this.query = event.target.innerText.trim();
+            document.getElementById("query").focus();
+            window.scrollTo(0, 0);
         },
-
         shareLink: function (event) {
             var base = window.location.href;
             var cut = base.lastIndexOf('?');
@@ -181,12 +202,36 @@ var app = new Vue({
             base = base.substring(0, cut);
             prompt("Copy the URL", format("{}?search={}", base, encodeURIComponent(this.query)));
         },
+        // Process the query and display the result(s) if there's any.
+        runQuery: function (text) {
+            var res = this.parseQuery(text);
+            this.answer = '';
+            if (res.command) {
+                var url = res.command(res);
+                if (url) {
+                    if (typeof url === 'string') {
+                        this.url = url;
+                        this.params = parseURLQueryString(url);
+                        this.method = "get";
+                    } else {
+                        this.url = url.url;
+                        this.method = url.method;
+                        this.params = url.params;
+                    }
+                } else {
+                    this.url = '';
+                    this.params = {};
+                    this.method = "get";
+                }
+            }
+        },
 
         /**
          * Try to detect particular tokens in a query.
          * - Year
          * - Team
          * - Command
+         * - Jersey
          */
         parseQuery: function (text) {
             var tokens = text.trim().toLowerCase().split(/\s+/);
@@ -194,16 +239,24 @@ var app = new Vue({
                 text: null,
                 team: null,
                 year: null,
+                jersey: null,
                 command: null,
             };
             var text_tokens = [];
+
             for (var idx = 0; idx < tokens.length; idx++) {
                 var token = tokens[idx];
+                var team = this.teamFromID(res.token);
 
-                if (/\d{4}/.test(token)) {
-                    // check if token is year
+                if (team) {
+                    // check if the token is a team
+                    res.team = team;
+                } else if (/^\d{1,2}$/.test(token)) {
+                    // check if token is a jersey
+                    res.jersey = token;
+                } else if (/^\d{4}$/.test(token)) {
+                    // check if token is a year
                     res.year = token;
-
                 } else {
                     var cmd = null;
                     if (token[0] == '!') {
@@ -222,10 +275,16 @@ var app = new Vue({
                 }
             }
             res.text = text_tokens.join(' ');
-            // check if the text identifies a team
-            var team = this.teamFromID(res.text);
-            if (team) {
-                res.team = team;
+
+            // If no team was found before, check if the joined text represents a team.
+            // This case happens when a team name has a space in it, it gets split into
+            // multiple tokens that cannot identify the team on their own.
+            if (!res.team) {
+                var team = this.teamFromID(res.text);
+                if (team) {
+                    res.team = team;
+                    res.text = null;
+                }
             }
             return res;
         },
@@ -240,15 +299,6 @@ var app = new Vue({
             var datums = refs.map(function (ref) { return team.refs[ref]; });
             datums.unshift(url);
             return format.apply(this, datums);
-        },
-        /**
-         * Returns a string for GET requests, returns an object with {method, url, params} for general requests.
-         */
-        parse: function (text) {
-            var res = this.parseQuery(text);
-            if (res.command) {
-                return res.command(res);
-            }
         },
         buildCmdTeam: function (url, refs) {
             if (typeof refs === 'string') {
@@ -300,6 +350,55 @@ var app = new Vue({
         cmdPlayer: function (res) {
             if (res.text.length > 0) {
                 return format("https://www.eliteprospects.com/search/player?q={}", encodeURIComponent(res.text));
+            }
+        },
+        cmdJersey: function (res) {
+            var self = this;
+            console.log(res);
+            if (res.jersey != null) {
+                var players = [];
+                if (res.team) {
+                    // we have a team, look for the jersey number within the team
+                    var player = this.rosters[res.team.code][res.jersey];
+                    if (player) {
+                        players.push(player);
+                    }
+                } else {
+                    // we do not have a team, look for the jersey within all teams
+                    for (var code in this.rosters) {
+                        var roster = this.rosters[code];
+                        var player = roster[res.jersey];
+                        if (player) {
+                            players.push(player);
+                        }
+                    };
+                }
+                if (players.length > 0) {
+                    players.sort();
+                    players.splice(0, 0, format("Players wearing {}:\n", res.jersey));
+                    self.answer = players.join("\n");
+                } else {
+                    self.answer = "No results";
+                }
+            } else if (res.text.length > 3) {
+                // we don't have a jersey, look for the jersey number by name
+                var search = res.text.toLowerCase();
+                var players = [];
+                for (var code in self.rosters) {
+                    var roster = self.rosters[code];
+                    for (var number in roster) {
+                        var name = roster[number];
+                        if (name.toLowerCase().indexOf(search) > -1) {
+                            players.push([number, name]);
+                        }
+                    }
+                };
+                if (players.length > 0) {
+                    players.sort(function (a, b) { return a[0] - b[0]; });
+                    self.answer = players.map(function (pair) { return format("{}: {}", pad(pair[0]), pair[1]); }).join("\n");
+                } else {
+                    self.answer = "No results";
+                }
             }
         },
     }

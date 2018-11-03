@@ -26,13 +26,17 @@
             <div class="pure-u-1">
                 <form id="query_form" class="pure-form" :action="url" :method="method" target="_blank">
                     <input type="hidden" :name="key" :value="val" v-for="(val, key) in params">
-                    <input id="query" autofocus v-model="query" type="text" placeholder="Query..." :class="{valid: url.length !== 0}">
+                    <input id="query" autofocus v-model="query" type="text" placeholder="Query..." :class="{valid: url.length !== 0 || answer.length > 0}">
                     <div class="pure-button-group" role="group">
                         <button type="submit" class="pure-button" :disabled="url.length === 0">Search</button>
-                        <button @click="shareLink" type="button" class="pure-button" :disabled="url.length === 0">Share</button>
+                        <button @click="shareLink" type="button" class="pure-button" :disabled="url.length === 0 && answer.length === 0">Share</button>
                     </div>
-
                 </form>
+            </div>
+        </div>
+        <div v-if="answer.length > 0" class="pure-g">
+            <div class="pure-u-1">
+                <pre>{{answer}}</pre>
             </div>
         </div>
         <div class="pure-g">
@@ -42,7 +46,8 @@
                     The order of the keywords does not matter. You can type
                     <span class="query" @click="loadExample">lines habs</span>,
                     <span class="query" @click="loadExample">ovechkin cap</span> or
-                    <span class="query" @click="loadExample">2014 stats habs</span>, it makes no difference. The case is also irrelevant. Note that writing a ! before
+                    <span class="query" @click="loadExample">2014 stats habs</span>, it makes no difference. The case
+                    is also irrelevant. Note that writing a ! before
                     the command/query is not required anymore, but still works.
                 </p>
                 <h4>Reference</h4>
@@ -50,12 +55,18 @@
                     <tr v-for="help in help_queries">
                         <td class="first">{{help.name}}</td>
                         <td class="second">
-                            <span v-for="arg in help.args" class="arg">{{arg}}</span>
-                            <span v-for="arg in help.or" class="or">
-                                <span class="arg">{{arg}}</span>
-                                <span class="arg join">or</span>
-                            </span>
-                            <span v-for="arg in help.opts" class="arg opt">[{{arg}}]</span>
+                            <div>
+                                <span v-for="arg in help.opts" class="arg opt">[{{arg}}]</span>
+                            </div>
+                            <div>
+                                <span v-for="arg in help.args" class="arg">{{arg}}</span>
+                            </div>
+                            <div>
+                                <span v-for="arg in help.or" class="or">
+                                    <span class="arg">{{arg}}</span>
+                                    <span class="arg join">or</span>
+                                </span>
+                            </div>
                         </td>
                         <td class="third">{{help.text}}</td>
                     </tr>
@@ -66,7 +77,8 @@
                 </div>
                 <h3 id="teams">Teams</h3>
                 <p>
-                    Teams can be referred to by code, location or names. For instance the Montreal Canadiens can be referred to as
+                    Teams can be referred to by code, location or names. For instance the Montreal Canadiens can be
+                    referred to as
                     <span class="query">mtl</span>,
                     <span class="query">montreal</span>,
                     <span class="query">canadiens</span> or
@@ -110,6 +122,7 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
     <script src="script.js"></script>
 </body>
