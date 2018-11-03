@@ -41,7 +41,7 @@ function format(text) {
 function pad(num) {
     var x = parseInt(num, 10);
     if (x < 10) {
-        return format("0{}", x);
+        return format(" {}", x);
     }
     return format("{}", x);
 }
@@ -354,7 +354,7 @@ var app = new Vue({
         },
         cmdJersey: function (res) {
             var self = this;
-            console.log(res);
+
             if (res.jersey != null) {
                 var players = [];
                 if (res.team) {
