@@ -205,7 +205,13 @@ var app = new Vue({
         // Process the query and display the result(s) if there's any.
         runQuery: function (text) {
             var res = this.parseQuery(text);
+
+            // reset
             this.answer = '';
+            this.url = '';
+            this.params = {};
+            this.method = "get";
+
             if (res.command) {
                 var url = res.command(res);
                 if (url) {
