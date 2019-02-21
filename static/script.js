@@ -340,7 +340,7 @@ var app = new Vue({
         },
         cmdCap: function (res) {
             if (res.team != null) {
-                return this.urlFromTeamRefs(res.team, "https://capfriendly.com/team/{}", "capfriendly");
+                return this.urlFromTeamRefs(res.team, "https://capfriendly.com/teams/{}", "capfriendly");
             } else if (res.text.length > 0) {
                 var query = encodeURIComponent(res.text);
                 return format("https://capfriendly.com/search?s={}", query);
