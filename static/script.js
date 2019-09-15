@@ -138,7 +138,6 @@ var app = new Vue({
             'highlights': this.cmdHighlights,
             'jersey': this.cmdJersey,
             'player': this.cmdPlayer,
-            'hdb': this.cmdLink("http://www.hockeydabeast413.xyz/habs.html"),
         };
 
         for (var i = 0; i < teams.length; i++) {
